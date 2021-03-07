@@ -1,0 +1,3 @@
+PROC REG DATA=WORK.D201;
+MODEL Dependent_variable = variable1 variable 2 variable 3 / clb;
+RUN;
