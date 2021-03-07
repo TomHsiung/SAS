@@ -1,0 +1,5 @@
+PROC IMPORT 
+DATAFILE="/folders/myfolders/d201.xlsx"
+OUT=WORK.D201
+DBMS=xlsx REPLACE;
+RUN;
