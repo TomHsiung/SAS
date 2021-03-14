@@ -5,3 +5,8 @@ RUN;
 PROC REG DATA=WORK.D201;
 MODEL Average_daily_dose_during_the_in = Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 AKI_2C9 AKI_VKORC1 / seleciton=stepwise SLE=0.05 SLS=0.20 vif clb clm;
 RUN;
+
+PROC GLM DATA=WORK.D201;
+MODEL Average_daily_dose_during_the_in=Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 AKI_2C9 AKI_VKORC1 / ALPHA=0.05 CLPARM SOLUTION;
+STORE WORK.DOSEMODEL / LABEL='Linear Regression';
+RUN;
