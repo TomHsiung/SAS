@@ -1,4 +1,3 @@
-# Logistic regression with ROC cruve ouput
 PROC LOGISTIC DATA=WORK.D201 PLOTS=ROC;
 MODEL First_therapeutic_INR_reached_(event='1')=Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 / ALPHA=0.05 CLODDS=PL CLPARM=PL ROCCI ORPVALUE;
 RUN;
