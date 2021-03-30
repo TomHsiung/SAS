@@ -1,0 +1,48 @@
+PROC IMPORT 
+DATAFILE="/folders/myfolders/d201.xlsx"
+OUT=WORK.D201
+DBMS=xlsx REPLACE;
+RUN;
+
+PROC IMPORT
+DATAFILE="/folders/myfolders/predicted.xlsx"
+OUT=WORK.PREDICTED
+DBMS=xlsx REPLACE;
+RUN;
+
+PROC GLMSELECT DATA=WORK.D201;
+MODEL Average_daily_dose_during_the_in=Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 AKI_2C9 AKI_VKORC1 / SELECTION=stepwise(SELECT=sl SLENTRY=0.20 SLSTAY=0.05) SHOWPVALUES;
+STORE WORK.DOSEMODEL / LABEL='Linear Regression';
+RUN;
+
+%PUT &=_GLSIND;
+
+PROC GLM DATA=WORK.D201;
+MODEL Average_daily_dose_during_the_in=&_GLSIND; / solution CLPARM;
+RUN;
+
+PROC PLM RESTORE=WORK.DOSEMODEL;
+SCORE DATA=WORK.PREDICTED out=WORK.NEWDOSE predicted lclm uclm lcl ucl stderr / ALPHA=0.05;
+RUN;
+
+PROC PRINT DATA=WORK.NEWDOSE;
+VAR Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 AKI_2C9 AKI_VKORC1 predicted lclm uclm lcl ucl stderr;
+RUN;
+
+PROC LOGISTIC DATA=WORK.D201 PLOTS=ROC;
+MODEL First_therapeutic_INR_reached_(event='1')=Age_for_t_test Gender_code Weight_status_2 AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 / ALPHA=0.05 CLODDS=WALD CLPARM=WALD ROCCI ORPVALUE EXPB;
+RUN;
+
+PROC LOGISTIC DATA=WORK.D201 PLOTS=ROC;
+MODEL First_therapeutic_INR_reached_(event='1')=total_score / ALPHA=0.05 CLODDS=WALD CLPARM=WALD ROCCI ORPVALUE EXPB;
+STORE WORK.SCOREMODEL / LABEL='Score Logistic Regression';
+RUN;
+
+PROC PLM RESTORE=WORK.SCOREMODEL;
+SCORE DATA=WORK.PREDICTED out=WORK.P predicted lclm uclm stderr / ALPHA=0.05 ILINK;
+RUN;
+
+PROC PRINT DATA=WORK.P;
+VAR total_score predicted lclm uclm stderr;
+RUN;
+QUIT;
