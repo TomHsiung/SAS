@@ -14,3 +14,8 @@ RUN;
 PROC PLM RESTORE=WORK.DOSEMODEL;
 SCORE DATA=WORK.PREDICTED out=WORK.NEWDOSE predicted lclm uclm lcl ucl stderr / ALPHA=0.05;
 RUN;
+
+PROC GLMSELECT DATA=WORK.D201;
+MODEL Average_daily_dose_during_the_in=Age__y_ Gender_code BSA AF Hypertension CHF Hypoalbuminemia_code AKI_for_T_test Potential_amiodarone_DDI T_test___indication VAR33 VAR34 AKI_2C9 AKI_VKORC1 / SELECTION=stepwise(SELECT=sl SLENTRY=0.20 SLSTAY=0.05) SHOWPVALUES;
+STORE WORK.DOSEMODEL / LABEL='Linear Regression';
+RUN;
